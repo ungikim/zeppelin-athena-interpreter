@@ -51,7 +51,7 @@ class AthenaDownloadInterpreter(properties: Properties) extends Interpreter(prop
 
   override def cancel(context: InterpreterContext): Unit = if (getAthenaInterpreter().isDefined) getAthenaInterpreter().get.cancel(context)
 
-  override def getFormType: Interpreter.FormType = FormType.NONE
+  override def getFormType: Interpreter.FormType = FormType.SIMPLE
 
   override def getProgress(context: InterpreterContext): Int = 0
 }

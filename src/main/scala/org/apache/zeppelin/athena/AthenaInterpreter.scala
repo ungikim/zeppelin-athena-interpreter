@@ -90,7 +90,7 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
     getAthenaUserConfigurations(context).cancelExecution(paragraphId)
   }
 
-  override def getFormType: Interpreter.FormType = FormType.NONE
+  override def getFormType: Interpreter.FormType = FormType.SIMPLE
 
   override def completion(buf: String, cursor: Int, context: InterpreterContext): util.List[InterpreterCompletion] = List.empty[InterpreterCompletion].asJava
 
