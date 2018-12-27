@@ -43,21 +43,26 @@ class AthenaExecutionIterator(@transient private val client: AmazonAthena,
 }
 
 class AthenaResultIterator(@transient private val client: AmazonAthena,
+                           private val maxRows: Int,
                            private val executionId: ExecutionId) extends AbstractIterator[ResultSet] {
   private val resultsRequest = new GetQueryResultsRequest().withQueryExecutionId(executionId.executionId)
   private var isResultRemaining = true
+  private var resultRows = 0
 
   override def hasNext: Boolean = isResultRemaining
 
   @throws(classOf[AmazonAthenaException])
   override def next(): ResultSet = {
     val results = client.getQueryResults(resultsRequest)
+    resultRows += results.getResultSet.getRows.size()
 
     if (Option(results.getNextToken).nonEmpty) {
       resultsRequest.setNextToken(results.getNextToken)
     } else {
       isResultRemaining = false
     }
+
+    if (resultRows >= maxRows) isResultRemaining = false
 
     results.getResultSet
   }

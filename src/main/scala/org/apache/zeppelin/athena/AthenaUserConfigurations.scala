@@ -82,7 +82,7 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
       logger.info(s"Execution Id: ${executionId.executionId}")
 
       if (!download) {
-        val resultIterator = new AthenaResultIterator(athenaClient, executionId)
+        val resultIterator = new AthenaResultIterator(athenaClient, options.maxRow, executionId)
         val msg = new StringBuilder()
         while (resultIterator.hasNext) {
           val results = resultIterator.next()
