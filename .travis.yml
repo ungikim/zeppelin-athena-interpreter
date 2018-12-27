@@ -4,10 +4,18 @@ cache:
   directories:
     - "${HOME}/.m2"
 script: mvn clean package
+before_deploy:
+  - git config --local user.name "Ungi Kim"
+  - git config --local user.email "ungi@ungikim.me"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_TAG
 deploy:
   provider: releases
   api_key:
     secure: itMhPws1PiGFgRmqR9WnNlHRTmjCm3oOqbCc/sqw8NtEbVShHiohysyUtVgVVuQSj7PRpAgS27Y/2j7Y618/cXkGZBCNIgCDYnGjQvvAr2NMJnyFe540iyjt4wpXID3zLKpnZfIEu8CtsKoFq9bViCmIBd0QcuLlB/jnLRVKphQ4ej9MdgGM9w/TZoGD+MnlbcaOJamKc+keA6PYJiuBtKt2nRoATGxH4jCbLlK0jS6tPX61HCESU2WtENXTdn9A/PDocuSeBWr2f+tTPMt8BX1TFs9pva/ED/63vQTJdn1HPq6jNBOUB8mAW86kTOsKOfMqTUky6VntlsDLe8rTHMnNgZ6AxVx8ex+4F3JPbgns2ZNnx6Zy2ciDgetbOJ5btBNIhCydUu0eDDrvYVbFl7BtQGTNqqa1/MJh6eavCKX8GpSJXwb2rUWk0XE6/3vuwwtekoI3x0ip5JZgfjfOCaTEqhUne9goO+IyaKbxE/W+xACJrXSBbIdWaRXOHFeDpUavClNem71rLmFV2uBQQSi7AOVQpUmgfIMuiAyrro/Bka1fKlJnllBK/4zmOGWisYqYfuDTN/S15bwt1CFQAamgpEh7AInOtQt7Yg964u7b7zBUDTt9I7pjrzxN4fXKx9l2aY2j0p7r5s8dDN5MrxgLdAgUJ0dCknc0CZBLR9c=
-  file: interpreter/athena/*
+  file_glob: true
+  file: interpreter/**/*
+  skip_cleanup: true
+  overwrite: true
   on:
     repo: ungikim/zeppelin-athena-interpreter
