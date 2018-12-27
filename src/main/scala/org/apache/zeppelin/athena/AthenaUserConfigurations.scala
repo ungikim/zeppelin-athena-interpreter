@@ -83,7 +83,7 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
 
       if (!download) {
         val resultIterator = new AthenaResultIterator(athenaClient, options.maxRow, executionId)
-        val msg = new StringBuilder()
+        val msg = new StringBuilder("%table ")
         while (resultIterator.hasNext) {
           val results = resultIterator.next()
 
@@ -91,9 +91,7 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
 
           Thread.sleep(options.sleepMs)
         }
-        val interpreterResult = new InterpreterResult(Code.SUCCESS)
-        interpreterResult.add(Type.TABLE, msg.toString)
-        return interpreterResult
+        return new InterpreterResult(Code.SUCCESS, msg.toString)
       }
       val (bucketName, objectKey) = getS3ObjectNameFromUri(s"${options.s3StagingDir}${if (options.s3StagingDir.last != '/') '/'}${executionId.executionId}.csv")
       val expiration = Calendar.getInstance().getTime
