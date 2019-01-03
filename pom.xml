@@ -23,7 +23,7 @@
     <groupId>org.apache.zeppelin</groupId>
     <artifactId>zeppelin-athena</artifactId>
     <packaging>jar</packaging>
-    <version>0.8.0</version>
+    <version>0.7.3</version>
     <name>Zeppelin: Amazon Athena interpreter</name>
 
     <properties>
@@ -72,6 +72,17 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
             <version>${aws.sdk.s3.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.4.1</version>
         </dependency>
 
         <dependency>

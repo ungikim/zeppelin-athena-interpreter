@@ -8,71 +8,61 @@
         "envName": null,
         "propertyName": "athena.region",
         "defaultValue": "",
-        "description": "Amazon AWS Region",
-        "type": "string"
+        "description": "Amazon AWS Region"
       },
       "athena.s3.staging_dir": {
         "envName": null,
         "propertyName": "athena.s3.staging_dir",
         "defaultValue": "s3://",
-        "description": "Athena Query Result Stage",
-        "type": "string"
+        "description": "Athena Query Result Stage"
       },
       "athena.s3.expiration_hr": {
         "envName": null,
         "propertyName": "athena.s3.expiration_hr",
         "defaultValue": "72",
-        "description": "Athena Result Download Url Expiration Hour(s)",
-        "type": "number"
+        "description": "Athena Result Download Url Expiration Hour(s)"
       },
       "athena.user": {
         "envName": null,
         "propertyName": "athena.user",
         "defaultValue": "",
-        "description": "AWS IAM Access Key Id",
-        "type": "string"
+        "description": "AWS IAM Access Key Id"
       },
       "athena.password": {
         "envName": null,
         "propertyName": "athena.password",
         "defaultValue": "",
-        "description": "AWS IAM Secret Key",
-        "type": "string"
+        "description": "AWS IAM Secret Key"
       },
       "athena.database": {
         "envName": null,
         "propertyName": "athena.database",
         "defaultValue": "",
-        "description": "Athena Default Database",
-        "type": "string"
+        "description": "Athena Default Database"
       },
       "athena.timeout": {
         "envName": null,
         "propertyName": "athena.timeout",
         "defaultValue": "100000",
-        "description": "Athena Client Connection Timeout",
-        "type": "number"
+        "description": "Athena Client Connection Timeout"
       },
       "athena.rows.max": {
         "envName": null,
         "propertyName": "athena.rows.max",
         "defaultValue": "1000",
-        "description": "Query Result Max Limit By Row",
-        "type": "number"
+        "description": "Query Result Max Limit By Row"
       },
       "athena.sleep_in_ms": {
         "envName": null,
         "propertyName": "athena.sleep_in_ms",
         "defaultValue": "1000",
-        "description": "Thread sleep in ms",
-        "type": "number"
+        "description": "Thread sleep in ms"
       },
       "athena.concurrency": {
         "envName": null,
         "propertyName": "athena.concurrency",
         "defaultValue": "10",
-        "description": "ParallelScheduler Concurrency",
-        "type": "number"
+        "description": "ParallelScheduler Concurrency"
       }
     },
     "editor": {

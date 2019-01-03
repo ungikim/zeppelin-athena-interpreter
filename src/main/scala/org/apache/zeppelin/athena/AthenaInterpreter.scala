@@ -17,23 +17,19 @@
 
 package org.apache.zeppelin.athena
 
-import java.util
 import java.util.Properties
 
 import org.apache.zeppelin.interpreter.Interpreter.FormType
 import org.apache.zeppelin.interpreter.InterpreterResult.Code
-import org.apache.zeppelin.interpreter.thrift.InterpreterCompletion
 import org.apache.zeppelin.interpreter.{Interpreter, InterpreterContext, InterpreterResult}
 import org.apache.zeppelin.scheduler.{Scheduler, SchedulerFactory}
 import org.slf4j.LoggerFactory
-
-import scala.collection.JavaConverters._
 
 case class User(user: String)
 
 class AthenaInterpreter(properties: Properties) extends Interpreter(properties) {
   private final val logger = LoggerFactory.getLogger(classOf[AthenaInterpreter])
-  private final val options = AthenaOptions(getProperties)
+  private final val options = AthenaOptions(getProperty)
   private final lazy val ruleManager = new AthenaRuleManager(options)
   private final val userConfigurations = collection.mutable.Map.empty[User, AthenaUserConfigurations]
 
@@ -55,7 +51,7 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
     if (cmd == null || cmd.trim.isEmpty) new InterpreterResult(Code.ERROR, "No query")
 
     val athenaCheckResult = ruleManager.assertAthenaLimit(cmd)
-    logger.info(s"Assert Athena Limit Result: ${athenaCheckResult.toJson}")
+    logger.info(s"Assert Athena Limit Result: ${athenaCheckResult.toString}")
     if (athenaCheckResult.code() != Code.SUCCESS) return athenaCheckResult
 
     val userConfigurations = getAthenaUserConfigurations(context)
@@ -91,8 +87,6 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
   }
 
   override def getFormType: Interpreter.FormType = FormType.SIMPLE
-
-  override def completion(buf: String, cursor: Int, context: InterpreterContext): util.List[InterpreterCompletion] = List.empty[InterpreterCompletion].asJava
 
   override def getProgress(context: InterpreterContext): Int = 0
 }

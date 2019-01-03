@@ -94,7 +94,7 @@ object AwsUtils {
     builder = if (userConfigurations.authenticationInfo.isAnonymous) {
       builder.withCredentials(options.credentials)
     } else {
-      builder.withCredentials(AthenaOptions.createCredentialsFromAccessKey(userConfigurations.credentials.get.getUsername, userConfigurations.credentials.get.getPassword))
+      builder.withCredentials(AthenaOptions.createCredentialsFromAccessKey(userConfigurations.usernamePassword.get.getUsername, userConfigurations.usernamePassword.get.getPassword))
     }
 
     builder.build
@@ -108,7 +108,7 @@ object AwsUtils {
     builder = if (userConfigurations.authenticationInfo.isAnonymous) {
       builder.withCredentials(options.credentials)
     } else {
-      builder.withCredentials(AthenaOptions.createCredentialsFromAccessKey(userConfigurations.credentials.get.getUsername, userConfigurations.credentials.get.getPassword))
+      builder.withCredentials(AthenaOptions.createCredentialsFromAccessKey(userConfigurations.usernamePassword.get.getUsername, userConfigurations.usernamePassword.get.getPassword))
     }
 
     builder.build

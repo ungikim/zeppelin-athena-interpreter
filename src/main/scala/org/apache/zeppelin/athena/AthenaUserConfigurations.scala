@@ -46,15 +46,10 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
   private final val resultConfiguration = new ResultConfiguration().withOutputLocation(options.s3StagingDir)
   private final val startQueryExecutionRequest = new StartQueryExecutionRequest().withQueryExecutionContext(queryExecutionContext).withResultConfiguration(resultConfiguration)
   final val authenticationInfo: AuthenticationInfo = context.getAuthenticationInfo
-  final val credentials: Option[UsernamePassword] = if (context.getAuthenticationInfo.isAnonymous) {
+  final val usernamePassword: Option[UsernamePassword] = if (context.getAuthenticationInfo.isAnonymous) {
     None
   } else {
     Some(context.getAuthenticationInfo.getUserCredentials.getUsernamePassword(context.getReplName.split('.').headOption.getOrElse(context.getReplName)))
-  }
-  final val roles: Set[String] = if (context.getAuthenticationInfo.isAnonymous) {
-    Set.empty[String]
-  } else {
-    context.getAuthenticationInfo.getRoles.asScala.toSet
   }
   private final lazy val athenaClient: AmazonAthena = AwsUtils.setupAthenaClientConnection(options, userConfigurations = this)
   private final lazy val s3Client: AmazonS3 = AwsUtils.setupS3ClientConnection(options, userConfigurations = this)
