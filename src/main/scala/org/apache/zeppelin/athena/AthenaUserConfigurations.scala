@@ -51,8 +51,8 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
   } else {
     Some(context.getAuthenticationInfo.getUserCredentials.getUsernamePassword(context.getReplName.split('.').headOption.getOrElse(context.getReplName)))
   }
-  private final lazy val athenaClient: AmazonAthena = AwsUtils.setupAthenaClientConnection(options, userConfigurations = this)
-  private final lazy val s3Client: AmazonS3 = AwsUtils.setupS3ClientConnection(options, userConfigurations = this)
+  private final val athenaClient: AmazonAthena = AwsUtils.setupAthenaClientConnection(options, userConfigurations = this)
+  private final val s3Client: AmazonS3 = AwsUtils.setupS3ClientConnection(options, userConfigurations = this)
 
 
   def executeSql(context: InterpreterContext, queryString: String, options: AthenaOptions, download: Boolean): InterpreterResult = {
