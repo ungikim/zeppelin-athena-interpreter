@@ -17,14 +17,13 @@
 
 package org.apache.zeppelin.athena
 
-import java.net.URI
 import java.util.Calendar
 
 import com.amazonaws.HttpMethod
 import com.amazonaws.services.athena.AmazonAthena
 import com.amazonaws.services.athena.model._
-import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3URI}
 import org.apache.zeppelin.interpreter.InterpreterResult.{Code, Type}
 import org.apache.zeppelin.interpreter.{InterpreterContext, InterpreterResult}
 import org.apache.zeppelin.user.{AuthenticationInfo, UsernamePassword}
@@ -88,12 +87,14 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
         }
         return new InterpreterResult(Code.SUCCESS, msg.toString)
       }
-      val (bucketName, objectKey) = getS3ObjectNameFromUri(s"${options.s3StagingDir}${if (options.s3StagingDir.last != '/') '/'}${executionId.executionId}.csv")
+      val parsedUri = new AmazonS3URI(s"${options.s3StagingDir}${if (options.s3StagingDir.last != '/') '/' else ""}${executionId.executionId}.csv")
+      val bucketName = parsedUri.getBucket
+      val objectKey = parsedUri.getKey
       val expiration = Calendar.getInstance().getTime
       var expTimeMillis: Long = expiration.getTime
       expTimeMillis += options.s3ExpirationMs
       expiration.setTime(expTimeMillis)
-
+      
       logger.info(s"Bucket Name: $bucketName, objectKey: $objectKey")
 
       val presignedUrl = s3Client.generatePresignedUrl(new GeneratePresignedUrlRequest(bucketName, objectKey).withMethod(HttpMethod.GET).withExpiration(expiration))
@@ -101,11 +102,6 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
     }
 
     new InterpreterResult(Code.KEEP_PREVIOUS_RESULT)
-  }
-
-  private def getS3ObjectNameFromUri(stageUri: String): (String, String) = {
-    val parsedUri: URI = new URI(stageUri)
-    (parsedUri.getHost, parsedUri.getPath.slice(1, parsedUri.getPath.length))
   }
 
   private def printRows(rows: List[Row]): String = {
