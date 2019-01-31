@@ -17,7 +17,9 @@
 
 package org.apache.zeppelin.athena
 
-import java.util.Calendar
+import java.time.temporal.ChronoUnit
+import java.time.{Instant, LocalDate, ZoneId}
+import java.util.Date
 
 import com.amazonaws.HttpMethod
 import com.amazonaws.services.athena.AmazonAthena
@@ -65,11 +67,17 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
 
       val executionIterator = new AthenaExecutionIterator(athenaClient, executionId)
       while (executionIterator.hasNext) {
-        paragraphIdExecutionIdMap.remove(paragraphId)
         executionIterator.next() match {
-          case ir: InterpreterResult if ir.code() == Code.ERROR => return ir
-          case ir: InterpreterResult if ir.code() != Code.SUCCESS => Thread.sleep(options.sleepMs)
-          case _ =>
+          case ir: InterpreterResult if ir.code() == Code.ERROR => {
+            paragraphIdExecutionIdMap.remove(paragraphId)
+            return ir
+          }
+          case ir: InterpreterResult if ir.code() != Code.SUCCESS => {
+            if (paragraphIdExecutionIdMap.get(paragraphId).isDefined) {
+              Thread.sleep(options.sleepMs)
+            }
+          }
+          case _ => paragraphIdExecutionIdMap.remove(paragraphId)
         }
       }
 
@@ -87,21 +95,19 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
         }
         return new InterpreterResult(Code.SUCCESS, msg.toString)
       }
-      val parsedUri = new AmazonS3URI(s"${options.s3StagingDir}${if (options.s3StagingDir.last != '/') '/' else ""}${executionId.executionId}.csv")
-      val bucketName = parsedUri.getBucket
-      val objectKey = parsedUri.getKey
-      val expiration = Calendar.getInstance().getTime
-      var expTimeMillis: Long = expiration.getTime
-      expTimeMillis += options.s3ExpirationMs
-      expiration.setTime(expTimeMillis)
-      
-      logger.info(s"Bucket Name: $bucketName, objectKey: $objectKey")
 
-      val presignedUrl = s3Client.generatePresignedUrl(new GeneratePresignedUrlRequest(bucketName, objectKey).withMethod(HttpMethod.GET).withExpiration(expiration))
-      return new InterpreterResult(Code.SUCCESS, Type.HTML, s"<a href='${presignedUrl.toString}'>Download</a>")
+      return new InterpreterResult(Code.SUCCESS, Type.HTML, s"<a href='${getPresignedUrl(executionId)}'>Download</a>")
     }
 
     new InterpreterResult(Code.KEEP_PREVIOUS_RESULT)
+  }
+
+  private def getPresignedUrl(executionId: ExecutionId): String = {
+    val parsedUri = new AmazonS3URI(s"${options.s3StagingDir}${if (options.s3StagingDir.last != '/') '/' else ""}${executionId.executionId}.csv")
+
+    logger.info(s"Bucket Name: ${parsedUri.getBucket}, objectKey: ${parsedUri.getKey}")
+
+    s3Client.generatePresignedUrl(new GeneratePresignedUrlRequest(parsedUri.getBucket, parsedUri.getKey).withMethod(HttpMethod.GET).withExpiration(Date.from(Instant.from(LocalDate.now().plus(options.s3ExpirationMs, ChronoUnit.MILLIS).atStartOfDay(ZoneId.of("GMT")))))).toString
   }
 
   private def printRows(rows: List[Row]): String = {
