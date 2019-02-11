@@ -61,7 +61,7 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
       val limitCheckResult = ruleManager.assertLimitClause(cmd)
       logger.info(s"Assert Limit Result: ${limitCheckResult.message}")
       limitCheckResult match {
-        case LimitRules.NoLimit => query = s"$cmd LIMIT ${options.maxRow}"
+        case LimitRules.NoLimit => query = s"$cmd\nLIMIT ${options.maxRow}"
         case LimitRules.LimitExceeds => return new InterpreterResult(Code.ERROR, s"Limit clause exceeds ${options.maxRow}")
         case _ =>
       }
