@@ -17,9 +17,7 @@
 
 package org.apache.zeppelin.athena
 
-import java.time.temporal.ChronoUnit
-import java.time.{Instant, LocalDate, ZoneId}
-import java.util.Date
+import java.util.Calendar
 
 import com.amazonaws.HttpMethod
 import com.amazonaws.services.athena.AmazonAthena
