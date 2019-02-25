@@ -17,9 +17,7 @@
 
 package org.apache.zeppelin.athena
 
-import java.time.temporal.ChronoUnit
-import java.time.{Instant, LocalDate, ZoneId}
-import java.util.Date
+import java.util.Calendar
 
 import com.amazonaws.HttpMethod
 import com.amazonaws.services.athena.AmazonAthena
@@ -105,9 +103,13 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
   private def getPresignedUrl(executionId: ExecutionId): String = {
     val parsedUri = new AmazonS3URI(s"${options.s3StagingDir}${if (options.s3StagingDir.last != '/') '/' else ""}${executionId.executionId}.csv")
 
+    val expiration = Calendar.getInstance().getTime	
+    var expTimeMillis: Long = expiration.getTime	
+    expTimeMillis += options.s3ExpirationMs	
+    expiration.setTime(expTimeMillis)
     logger.info(s"Bucket Name: ${parsedUri.getBucket}, objectKey: ${parsedUri.getKey}")
 
-    s3Client.generatePresignedUrl(new GeneratePresignedUrlRequest(parsedUri.getBucket, parsedUri.getKey).withMethod(HttpMethod.GET).withExpiration(Date.from(Instant.from(LocalDate.now().plus(options.s3ExpirationMs, ChronoUnit.MILLIS).atStartOfDay(ZoneId.of("GMT")))))).toString
+    s3Client.generatePresignedUrl(new GeneratePresignedUrlRequest(parsedUri.getBucket, parsedUri.getKey).withMethod(HttpMethod.GET).withExpiration(expiration)).toString
   }
 
   private def printRows(rows: List[Row]): String = {
