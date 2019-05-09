@@ -103,7 +103,7 @@ object AwsUtils {
   @throws(classOf[AmazonS3Exception])
   def setupS3ClientConnection(options: AthenaOptions,
                               userConfigurations: AthenaUserConfigurations): AmazonS3 = {
-    var builder = AmazonS3ClientBuilder.standard().withRegion(options.region).withPathStyleAccessEnabled(true)
+    var builder = AmazonS3ClientBuilder.standard().withRegion(options.region)
 
     builder = if (userConfigurations.authenticationInfo.isAnonymous) {
       builder.withCredentials(options.credentials)
