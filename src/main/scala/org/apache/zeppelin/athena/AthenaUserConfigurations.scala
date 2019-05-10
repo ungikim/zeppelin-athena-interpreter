@@ -40,7 +40,7 @@ case class ExecutionId(executionId: String)
 class AthenaUserConfigurations(@transient private val context: InterpreterContext,
                                @transient private val options: AthenaOptions) extends AnyRef with Serializable {
   private final val logger = LoggerFactory.getLogger(classOf[AthenaUserConfigurations])
-  private final val paragraphIdExecutionIdMap = collection.concurrent.TrieMap.empty[ParagraphId, ExecutionId]
+  private final val paragraphIdExecutionIdMap = collection.mutable.Map.empty[ParagraphId, ExecutionId]
   private final val queryExecutionContext = new QueryExecutionContext().withDatabase(options.database)
   private final val resultConfiguration = new ResultConfiguration().withOutputLocation(options.s3StagingDir)
   private final val startQueryExecutionRequest = new StartQueryExecutionRequest().withQueryExecutionContext(queryExecutionContext).withResultConfiguration(resultConfiguration)
@@ -103,9 +103,9 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
   private def getPresignedUrl(executionId: ExecutionId): String = {
     val parsedUri = new AmazonS3URI(s"${options.s3StagingDir}${if (options.s3StagingDir.last != '/') '/' else ""}${executionId.executionId}.csv")
 
-    val expiration = Calendar.getInstance().getTime	
-    var expTimeMillis: Long = expiration.getTime	
-    expTimeMillis += options.s3ExpirationMs	
+    val expiration = Calendar.getInstance().getTime
+    var expTimeMillis: Long = expiration.getTime
+    expTimeMillis += options.s3ExpirationMs
     expiration.setTime(expTimeMillis)
     logger.info(s"Bucket Name: ${parsedUri.getBucket}, objectKey: ${parsedUri.getKey}")
 

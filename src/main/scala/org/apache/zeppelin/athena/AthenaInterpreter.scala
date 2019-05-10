@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory
 
 case class User(user: String)
 
+case class QueryRequest(author: String, download: Boolean)
+
 class AthenaInterpreter(properties: Properties) extends Interpreter(properties) {
   private final val logger = LoggerFactory.getLogger(classOf[AthenaInterpreter])
   private final val options = AthenaOptions(getProperty)
@@ -54,8 +56,6 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
     logger.info(s"Assert Athena Limit Result: ${athenaCheckResult.toString}")
     if (athenaCheckResult.code() != Code.SUCCESS) return athenaCheckResult
 
-    val userConfigurations = getAthenaUserConfigurations(context)
-
     var query = cmd
     if (!download) {
       val limitCheckResult = ruleManager.assertLimitClause(cmd)
@@ -67,7 +67,8 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
       }
     }
 
-    userConfigurations.executeSql(context, query, options, download)
+    query = s"-- ${QueryRequest(context.getAuthenticationInfo.getUser, download)}\n$query"
+    getAthenaUserConfigurations(context).executeSql(context, query, options, download)
   }
 
   private def getAthenaUserConfigurations(context: InterpreterContext): AthenaUserConfigurations = {

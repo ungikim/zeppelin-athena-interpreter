@@ -89,28 +89,20 @@ object AwsUtils {
   @throws(classOf[AmazonAthenaException])
   def setupAthenaClientConnection(options: AthenaOptions,
                                   userConfigurations: AthenaUserConfigurations): AmazonAthena = {
-    var builder = AmazonAthenaClientBuilder.standard().withRegion(options.region).withClientConfiguration(new ClientConfigurationFactory().getConfig.withClientExecutionTimeout(options.timeout))
-
-    builder = if (userConfigurations.authenticationInfo.isAnonymous) {
-      builder.withCredentials(options.credentials)
+    AmazonAthenaClientBuilder.standard().withRegion(options.region).withClientConfiguration(new ClientConfigurationFactory().getConfig.withClientExecutionTimeout(options.timeout)).withCredentials(if (userConfigurations.authenticationInfo.isAnonymous) {
+      options.credentials
     } else {
-      builder.withCredentials(AthenaOptions.createCredentialsFromAccessKey(userConfigurations.usernamePassword.get.getUsername, userConfigurations.usernamePassword.get.getPassword))
-    }
-
-    builder.build
+      AthenaOptions.createCredentialsFromAccessKey(userConfigurations.usernamePassword.get.getUsername, userConfigurations.usernamePassword.get.getPassword)
+    }).build
   }
 
   @throws(classOf[AmazonS3Exception])
   def setupS3ClientConnection(options: AthenaOptions,
                               userConfigurations: AthenaUserConfigurations): AmazonS3 = {
-    var builder = AmazonS3ClientBuilder.standard().withRegion(options.region)
-
-    builder = if (userConfigurations.authenticationInfo.isAnonymous) {
-      builder.withCredentials(options.credentials)
+    AmazonS3ClientBuilder.standard().withRegion(options.region).withCredentials(if (userConfigurations.authenticationInfo.isAnonymous) {
+      options.credentials
     } else {
-      builder.withCredentials(AthenaOptions.createCredentialsFromAccessKey(userConfigurations.usernamePassword.get.getUsername, userConfigurations.usernamePassword.get.getPassword))
-    }
-
-    builder.build
+      AthenaOptions.createCredentialsFromAccessKey(userConfigurations.usernamePassword.get.getUsername, userConfigurations.usernamePassword.get.getPassword)
+    }).build()
   }
 }
