@@ -19,6 +19,7 @@ package org.apache.zeppelin.athena
 
 import java.util.Properties
 
+import com.google.gson.Gson
 import org.apache.zeppelin.interpreter.Interpreter.FormType
 import org.apache.zeppelin.interpreter.InterpreterResult.Code
 import org.apache.zeppelin.interpreter.{Interpreter, InterpreterContext, InterpreterResult}
@@ -27,7 +28,9 @@ import org.slf4j.LoggerFactory
 
 case class User(user: String)
 
-case class QueryRequest(author: String, download: Boolean)
+case class QueryRequest(author: String, query: String, download: Boolean) {
+  def toJson: String = new Gson().toJson(this)
+}
 
 class AthenaInterpreter(properties: Properties) extends Interpreter(properties) {
   private final val logger = LoggerFactory.getLogger(classOf[AthenaInterpreter])
@@ -63,10 +66,9 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
         case _ =>
       }
     }
-
-    query = s"-- ${QueryRequest(context.getAuthenticationInfo.getUser, download)}\n$query"
-
-    logger.info(query)
+    val log = QueryRequest(context.getAuthenticationInfo.getUser, query, download)
+    logger.info(log.toJson)
+    query = s"-- ${log.toJson}\n$query"
 
     getAthenaUserConfigurations(context).executeSql(context, query, options, download)
   }
