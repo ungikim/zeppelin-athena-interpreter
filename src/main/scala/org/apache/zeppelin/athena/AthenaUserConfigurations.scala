@@ -56,7 +56,6 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
 
   def executeSql(context: InterpreterContext, queryString: String, options: AthenaOptions, download: Boolean): InterpreterResult = {
     val paragraphId = ParagraphId(context.getParagraphId)
-    logger.info(s"Paragraph Id: ${paragraphId.paragraphId}")
 
     if (paragraphIdExecutionIdMap.get(paragraphId).isEmpty) {
       val executionId = ExecutionId(athenaClient.startQueryExecution(startQueryExecutionRequest.withQueryString(queryString)).getQueryExecutionId)
@@ -78,8 +77,6 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
           case _ => paragraphIdExecutionIdMap.remove(paragraphId)
         }
       }
-
-      logger.info(s"Execution Id: ${executionId.executionId}")
 
       if (!download) {
         val resultIterator = new AthenaResultIterator(athenaClient, options.maxRow, executionId)
@@ -107,7 +104,6 @@ class AthenaUserConfigurations(@transient private val context: InterpreterContex
     var expTimeMillis: Long = expiration.getTime
     expTimeMillis += options.s3ExpirationMs
     expiration.setTime(expTimeMillis)
-    logger.info(s"Bucket Name: ${parsedUri.getBucket}, objectKey: ${parsedUri.getKey}")
 
     s3Client.generatePresignedUrl(new GeneratePresignedUrlRequest(parsedUri.getBucket, parsedUri.getKey).withMethod(HttpMethod.GET).withExpiration(expiration)).toString
   }

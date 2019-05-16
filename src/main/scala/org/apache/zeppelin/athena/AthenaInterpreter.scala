@@ -49,17 +49,14 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
   override def interpret(cmd: String, context: InterpreterContext): InterpreterResult = executeSql(cmd, context, download = false)
 
   def executeSql(cmd: String, context: InterpreterContext, download: Boolean): InterpreterResult = {
-    logger.info(s"ReplName: ${context.getReplName}")
     if (cmd == null || cmd.trim.isEmpty) new InterpreterResult(Code.ERROR, "No query")
 
     val athenaCheckResult = ruleManager.assertAthenaLimit(cmd)
-    logger.info(s"Assert Athena Limit Result: ${athenaCheckResult.toString}")
     if (athenaCheckResult.code() != Code.SUCCESS) return athenaCheckResult
 
     var query = cmd
     if (!download) {
       val limitCheckResult = ruleManager.assertLimitClause(cmd)
-      logger.info(s"Assert Limit Result: ${limitCheckResult.message}")
       limitCheckResult match {
         case LimitRules.NoLimit => query = s"$cmd\nLIMIT ${options.maxRow}"
         case LimitRules.LimitExceeds => return new InterpreterResult(Code.ERROR, s"Limit clause exceeds ${options.maxRow}")
@@ -68,6 +65,9 @@ class AthenaInterpreter(properties: Properties) extends Interpreter(properties) 
     }
 
     query = s"-- ${QueryRequest(context.getAuthenticationInfo.getUser, download)}\n$query"
+
+    logger.info(query)
+
     getAthenaUserConfigurations(context).executeSql(context, query, options, download)
   }
 
