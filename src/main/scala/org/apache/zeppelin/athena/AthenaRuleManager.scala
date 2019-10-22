@@ -41,7 +41,6 @@ class AthenaRuleManager(private val options: AthenaOptions) {
 
   def assertAthenaLimit(cmd: String): InterpreterResult = cmd.trim.toLowerCase(Locale.ROOT) match {
     case parsedSql if parsedSql.startsWith("explain") => athenaLimitationsResult
-    case parsedSql if parsedSql.startsWith("insert into") => athenaLimitationsResult
     case parsedSql if parsedSql.startsWith("create table like") => athenaLimitationsResult
     case parsedSql if parsedSql.startsWith("describe input") => athenaLimitationsResult
     case parsedSql if parsedSql.startsWith("describe output") => athenaLimitationsResult
